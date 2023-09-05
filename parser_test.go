@@ -3,6 +3,7 @@ package conditions
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"strings"
 	"testing"
 
@@ -359,6 +360,28 @@ func BenchmarkParser(b *testing.B) {
 
 	for n := 0; n < b.N; n++ {
 		Evaluate(expr, args)
+	}
+}
+
+func BenchmarkParserLong(b *testing.B) {
+	itemsBytes, err := os.ReadFile("./golden/in_operator.sample.json")
+	if err != nil {
+		b.Fatal(err)
+	}
+
+	var items []string
+	if err = json.Unmarshal(itemsBytes, &items); err != nil {
+		b.Fatal(err)
+	}
+
+	cond := fmt.Sprintf(`{foo} IN [%s]`, strings.Join(items, ","))
+
+	for n := 0; n < b.N; n++ {
+		p := NewParser(strings.NewReader(cond))
+		_, err = p.Parse()
+		if err != nil {
+			b.Fatal(err)
+		}
 	}
 }
 

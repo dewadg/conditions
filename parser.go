@@ -329,15 +329,18 @@ func (p *Parser) scanArray(tt string) (rune, string, error) {
 	var ttTmp string
 	var sep string
 
+	ttBuf := &strings.Builder{}
+	ttBuf.WriteString(tt)
+
 	for i := 0; i < maxArrayLen; i++ {
 		t, ttTmp = p.scan()
 		if t == ']' {
-			return t, tt, nil
+			return t, ttBuf.String(), nil
 		}
 
-		tt = tt + sep + ttTmp
+		ttBuf.WriteString(sep + ttTmp)
 	}
-	return t, tt, fmt.Errorf("parsing error: no ] found in array syntax")
+	return t, ttBuf.String(), fmt.Errorf("parsing error: no ] found in array syntax")
 }
 
 // extract {variable} to variable
